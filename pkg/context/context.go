@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Jeffail/gabs/v2"
 	"github.com/goreleaser/goreleaser/internal/artifact"
 	"github.com/goreleaser/goreleaser/pkg/config"
 )
@@ -33,6 +34,11 @@ type GitInfo struct {
 	TagContents string
 	TagBody     string
 	Dirty       bool
+}
+
+// Vars are the user-defined variables
+type Vars struct {
+	*gabs.Container
 }
 
 // Env is the environment variables.
@@ -109,6 +115,7 @@ type Context struct {
 	Parallelism       int
 	Semver            Semver
 	Runtime           Runtime
+	Variables         *gabs.Container
 	Skips             map[string]bool
 }
 
@@ -150,6 +157,7 @@ func Wrap(ctx stdctx.Context, config config.Project) *Context {
 			Goos:   runtime.GOOS,
 			Goarch: runtime.GOARCH,
 		},
+		Variables: gabs.Wrap(config.Variables),
 	}
 }
 

@@ -1198,6 +1198,7 @@ type Project struct {
 	Git             Git              `yaml:"git,omitempty" json:"git,omitempty"`
 	ReportSizes     bool             `yaml:"report_sizes,omitempty" json:"report_sizes,omitempty"`
 	Metadata        ProjectMetadata  `yaml:"metadata,omitempty" json:"metadata,omitempty"`
+	Variables       map[string]any   `yaml:"variables,omitempty" json:"variables,omitempty"`
 
 	UniversalBinaries []UniversalBinary `yaml:"universal_binaries,omitempty" json:"universal_binaries,omitempty"`
 	UPXs              []UPX             `yaml:"upx,omitempty" json:"upx,omitempty"`

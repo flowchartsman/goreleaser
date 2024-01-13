@@ -4,12 +4,15 @@ package tmpl
 import (
 	"bytes"
 	"fmt"
+	"math"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
+	"github.com/Jeffail/gabs/v2"
 	"github.com/Masterminds/semver/v3"
 	"github.com/goreleaser/goreleaser/internal/artifact"
 	"github.com/goreleaser/goreleaser/pkg/build"
@@ -20,7 +23,8 @@ import (
 
 // Template holds data that can be applied to a template string.
 type Template struct {
-	fields Fields
+	fields    Fields
+	variables *gabs.Container
 }
 
 // Fields that will be available to the template engine.
@@ -123,7 +127,8 @@ func New(ctx *context.Context) *Template {
 	}
 
 	return &Template{
-		fields: fields,
+		fields:    fields,
+		variables: ctx.Variables,
 	}
 }
 
@@ -223,6 +228,7 @@ func (t *Template) Apply(s string) (string, error) {
 			"envOrDefault":   t.envOrDefault,
 			"map":            makemap,
 			"indexOrDefault": indexOrDefault,
+			"var":            t.vars,
 		}).
 		Parse(s)
 	if err != nil {
@@ -253,6 +259,26 @@ func (t *Template) envOrDefault(name, value string) string {
 		return value
 	}
 	return s
+}
+
+func (t *Template) vars(name string) (string, error) {
+	if !t.variables.ExistsP(name) {
+		return "", fmt.Errorf("invalid or missing variable: %v", name)
+	}
+	c := t.variables.Path(name)
+	switch v := c.Data().(type) {
+	case string:
+		return v, nil
+	case float64:
+		if math.Mod(v, 1.0) == 0 {
+			return strconv.FormatInt(int64(v), 64), nil
+		}
+		return strconv.FormatFloat(v, 'f', -1, 64), nil
+	case bool:
+		return strconv.FormatBool(v), nil
+	default:
+		return "", fmt.Errorf("non-scalar variable type at %s (type %T)", name, v)
+	}
 }
 
 type ExpectedSingleEnvErr struct{}

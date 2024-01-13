@@ -175,6 +175,7 @@ func tmplPath(ctx *context.Context, env map[string]string, s string) (string, er
 }
 
 func signone(ctx *context.Context, cfg config.Sign, art *artifact.Artifact) ([]*artifact.Artifact, error) {
+	// TODO: Variables
 	env := ctx.Env.Copy()
 	env["artifactName"] = art.Name // shouldn't be used
 	env["artifact"] = art.Path

@@ -251,6 +251,7 @@ func catalogArtifact(ctx *context.Context, cfg config.SBOM, a *artifact.Artifact
 }
 
 func applyTemplate(ctx *context.Context, cfg config.SBOM, a *artifact.Artifact) ([]string, []string, []string, error) {
+	// TODO: variables
 	env := ctx.Env.Copy()
 	var extraEnvs []string
 	templater := tmpl.New(ctx).WithEnv(env)
